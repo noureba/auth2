@@ -5,6 +5,8 @@ import Home from "./pages/Home";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
 import { ToastContainer } from 'react-toastify';
+import Admin from "./pages/Admin";
+import EmailVerify from "./pages/EmailVerify";
 
 
 function App() {
@@ -15,6 +17,9 @@ function App() {
       <Routes>
         <Route path="" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/email-verify" element={<EmailVerify />} />
+
       </Routes>
       <Footer/>
     </>
