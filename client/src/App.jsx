@@ -7,6 +7,7 @@ import Footer from "./components/Footer";
 import { ToastContainer } from 'react-toastify';
 import Admin from "./pages/Admin";
 import EmailVerify from "./pages/EmailVerify";
+import ResetPassword from "./pages/ResetPassword";
 
 
 function App() {
@@ -19,6 +20,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/email-verify" element={<EmailVerify />} />
+        <Route path="/reset-Password" element={<ResetPassword />} />
+
 
       </Routes>
       <Footer/>

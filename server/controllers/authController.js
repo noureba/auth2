@@ -179,4 +179,97 @@ export const verifyEmailOtp = async (req, res) => {
   }
 };
 
-//
+//reset password otp
+export const sendResetPasswordOtp = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.json({
+      success: false,
+      message: "Email is required",
+    });
+  }
+  try {
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.json({
+        success: false,
+        message: "user not found",
+      });
+    }
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+    user.resetPasswordOtp = otp;
+    user.resetPasswordOtpExpiredAt = Date.now() + 10 * 60 * 1000;
+    await user.save();
+
+    const mailOptions = {
+      from: process.env.STMP_FROM,
+      to: user.email,
+      subject: "Reset password otp",
+      text: "your reset password otp is : " + otp,
+    };
+    await transporter.sendMail(mailOptions)
+
+    res.json({
+      success:true,
+      message:"otp sent to your email"
+    })
+
+  } catch (error) {
+    return res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+//reset password 
+export const resetPassword = async (req, res) => {
+  const {email, otp, newPassword} = req.body;
+  if(!email|| !otp || !newPassword){
+    return res.json({
+      succes: false,
+      message: "Details are required"
+    })
+  }
+
+  try {
+    const user = await userModel.findOne({email});
+    if(!user){
+      return res.json({
+        success: false,
+        message: "User not found"
+      })
+    }
+    //check otp
+    if(user.resetPasswordOtp == "" || user.resetPasswordOtp !== otp){
+      return res.json({
+        success: false,
+        message:"your otp is not coreccet"
+      })
+    }
+    if(user.resetPasswordOtpExpiredAt < Date.now()){
+      return res.json({
+        succes: false,
+        message: "your otp is expired"
+      })
+    }
+    const newPasswordHash = await bcrypt.hash(newPassword, 12);
+    user.password = newPasswordHash;
+    user.resetPassword = "";
+    user.resetPasswordOtpExpiredAt = 0;
+    await user.save()
+
+    res.json({
+      succes: true,
+      message: "password has been changed"
+    })
+
+  } catch (error) {
+    return res.json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
