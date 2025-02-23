@@ -7,7 +7,7 @@ export const UserContext = createContext();
 export function UserContextProvider(props) {
   const [user, setUser] = useState(null);
   const [login, setLogin] = useState(false);
-  const backendUrl = "http://localhost:5000";
+  const backendUrl = import.meta.env.VITE_API_URL;
 
  
 
