@@ -21,8 +21,6 @@ function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/email-verify" element={<EmailVerify />} />
         <Route path="/reset-Password" element={<ResetPassword />} />
-
-
       </Routes>
       <Footer/>
     </>

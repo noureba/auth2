@@ -9,17 +9,13 @@ import "dotenv/config";
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: "All fields are required" });
+    return res.json({ success: false, message: "All fields are required" });
   }
   try {
     // Check if user already exists
     const user = await User.findOne({ email });
     if (user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User already exists" });
+      return res.json({ success: false, message: "User already exists" });
     }
     // Create new user
     const passwordHash = await bcrypt.hash(password, 12);
@@ -29,9 +25,7 @@ export const register = async (req, res) => {
       password: passwordHash,
     });
     await newUser.save();
-    res
-      .status(201)
-      .json({ success: true, message: "User created successfully" });
+    res.json({ success: true, message: "User created successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -41,33 +35,25 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res
-      .status(400)
-      .json({ success: false, message: "All fields are required" });
+    return res.json({ success: false, message: "All fields are required" });
   }
   try {
     //check if user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
+      return res.json({ success: false, message: "User not found" });
     }
     //check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res
-        .status(400)
-        .json({ success: false, message: "password not correct" });
+      return res.json({ success: false, message: "password not correct" });
     }
     //return token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
     if (!token) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Token not generated" });
+      return res.json({ success: false, message: "Token not generated" });
     }
     res.cookie("token", token, {
       httpOnly: true,
@@ -76,9 +62,9 @@ export const login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000,
     });
 
-    res.status(200).json({ success: true, message: "Login successful" });
+    res.json({ success: true, message: "Login successful" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 };
 
@@ -144,19 +130,19 @@ export const verifyEmailOtp = async (req, res) => {
     const user = await userModel.findById(userId);
 
     if (!user) {
-      return res.status(400).json({
+      return res.json({
         succes: false,
         message: "User not found",
       });
     }
     if (user.emailVerifyOtp == "" || user.emailVerifyOtp !== otp) {
-      return res.status(400).json({
+      return res.json({
         success: false,
         message: "Invalid otp",
       });
     }
     if (user.emailVerifyOtpExpiredAt < Date.now()) {
-      return res.status(400).json({
+      return res.json({
         success: false,
         message: "Otp expired",
       });

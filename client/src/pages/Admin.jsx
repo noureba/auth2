@@ -1,30 +1,61 @@
 import axios from "axios";
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
+import { UserContext } from "../context/userContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const Admin = () => {
-  const getData = async () => {
-    try {
+  const { user, login, backendUrl } = useContext(UserContext);
+  const navigete = useNavigate();
 
-      const {data} = await axios.get("http://localhost:5000/api/auth/data",{
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      console.log(data);
+  const VerifyemailHandler = async () => {
+    try {
+      const { data } = await axios.post(
+        backendUrl + "/api/auth/send-Email-Otp",
+        {},
+        { withCredentials: true }
+      );
+      if (data.success) {
+        toast(data.message);
+        navigete("/email-verify");
+      }
     } catch (error) {
-      console.log(error);
+      toast(error.message);
     }
   };
-  const sendOtpHandeler = async ()=>{
-    const {data} = await axios.post("http://localhost:5000/api/auth/send-Email-Otp")
-    console.log(data);
-  }
   return (
-    <div>
-      <button onClick={getData}>click</button>
-      <button onClick={sendOtpHandeler}>send otp</button>
-    </div>
+    <>
+      <section className="container ">
+        {login ? (
+          <div className="bg-gray-900 p-20 w-dvh text-center">
+            <p className="text-white text-2xl font-bold">
+              hello{" "}
+              <span className="text-2xl text-amber-100 font-bold">
+                {user.name}
+              </span>
+            </p>
+            <p className="text-white text-2xl font-bold">
+              email:{" "}
+              <span className="text-2xl text-amber-100 font-bold">
+                {user.email}
+              </span>
+            </p>
+            {!user.isAcountVerified ? (
+              <button
+                className="bg-white text-gray-900 p-5"
+                onClick={VerifyemailHandler}
+              >
+                Verify email
+              </button>
+            ) : (
+              <p className="text-white text-2xl">your email is is Verified</p>
+            )}
+          </div>
+        ) : (
+          <h3 className="text-5">please login</h3>
+        )}
+      </section>
+    </>
   );
 };
 

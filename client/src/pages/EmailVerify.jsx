@@ -1,32 +1,39 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { UserContext } from "../context/userContext";
 
 function EmailVerify() {
-  const [otp, setOtp] = useState();
+  const {backendUrl}= useContext(UserContext)
+  const [otp, setOtp] = useState("");
+  const navigate = useNavigate()
 
-  const verifyEmailOtp = async (e) => {
-    e.preventDefault();
-    const { data } = await axios.post(
-      "http://localhost:5000/api/auth/verify-Email-Otp",
-      { otp },
-      {
-        withCredentials: true,
+  const verifyEmailOtp = async () => {
+    try {
+      const { data } = await axios.post(
+        backendUrl+ "/api/auth/verify-Email-Otp",
+        {otp} ,
+        {
+          withCredentials: true,
+        }
+      );
+      if(data.success){
+        toast(data.message)
+        navigate("/admin")
       }
-    );
-    console.log(data);
+    } catch (error) {
+      toast(error.message)
+    }
+    
+    
   };
 
   return (
-    <div>
-      EmailVerify
-      <form action="" onSubmit={verifyEmailOtp}>
-        <input
-          type="text"
-          onChange={(e) => setOtp(e.target.value)}
-          value={otp}
-        />
-        <button >verefiy email</button>
-      </form>
+    <div className="container flex flex-col gap-5 p-20">
+      <h3 className="text-center text-3xl font-bold">EmailVerify</h3>
+      <input className="p-3 border border-gray-950 rounded-2xl" placeholder="your otp" type="number" maxLength="6" onChange={(e) => setOtp(e.target.value)} value={otp} />
+      <button className="bg-gray-900 text-white p-4" onClick={verifyEmailOtp}>verefiy email</button>
     </div>
   );
 }
